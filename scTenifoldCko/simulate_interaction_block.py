@@ -11,3 +11,8 @@ def simulate_interaction_block(data, ligand, receptor):
     - Modified data with interaction blocked.
     """
     pass
+
+from scTenifoldCko import simulate_cic_disruption
+
+# Input normalized expression matrix and target ligand-receptor pair
+disrupted_data = simulate_cic_disruption(expression_matrix, ligand="LigandA", receptor="ReceptorB")

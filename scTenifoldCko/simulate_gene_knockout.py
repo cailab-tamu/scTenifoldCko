@@ -10,3 +10,8 @@ def simulate_gene_knockout(data, gene):
     - Modified data with simulated knockout effects.
     """
     pass
+
+from scTenifoldCko import simulate_knockout
+
+# Input normalized expression matrix and knockout target gene
+simulated_data = simulate_knockout(expression_matrix, target_gene="GeneA")
