@@ -1,3 +1,3 @@
 # scTenifoldCko
 
-Single-cell data analysis method of cell-cell communication knockout (CKO).
+A single-cell data analysis tool for simulating cell-cell communication knockout (CKO) and analyzing gene expression changes.
