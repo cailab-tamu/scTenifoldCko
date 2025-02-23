@@ -1,0 +1,102 @@
+https://chatgpt.com/share/67bab089-a7e4-8005-8931-2e6e7434e9a8
+
+### **Comparing FPDM vs. Standard Diffusion Maps (DM) Quantitatively**  
+
+To compare **Fokker-Planck Diffusion Maps (FPDM)** and **Standard Diffusion Maps (DM)**, we can use the following metrics:  
+
+1. **Wasserstein Distance** (Earth Mover’s Distance) → Measures how different the two embeddings are.  
+2. **KL Divergence** → Quantifies how much FPDM differs from standard DM in capturing probability distributions.  
+3. **Correlation (Spearman/Pearson)** → Checks if FPDM and DM embeddings are similar in structure.  
+
+---
+
+### **1. Wasserstein Distance Between FPDM and DM**  
+We compute the **1D Wasserstein distance** between the first components of both embeddings:  
+
+```python
+from scipy.stats import wasserstein_distance
+
+# Extract first principal components from FPDM and DM
+fpdm_comp1 = adata.obsm["X_fpdm"][:, 0]
+dm_comp1 = adata.obsm["X_diffmap"][:, 0]
+
+# Compute Wasserstein distance
+wdist = wasserstein_distance(fpdm_comp1, dm_comp1)
+print(f"Wasserstein Distance (FPDM vs. DM): {wdist:.4f}")
+```
+**Interpretation:**  
+- **High distance** → FPDM and DM produce different representations (FPDM captures different differentiation patterns).  
+- **Low distance** → FPDM and DM embeddings are similar.  
+
+---
+
+### **2. KL Divergence Between FPDM and DM**  
+We approximate **KL divergence** by binning the distributions and using the probability densities:  
+
+```python
+import numpy as np
+from scipy.special import rel_entr
+
+# Compute histograms (probability distributions)
+hist_fpdm, bins_fpdm = np.histogram(fpdm_comp1, bins=50, density=True)
+hist_dm, bins_dm = np.histogram(dm_comp1, bins=50, density=True)
+
+# Normalize to obtain probability distributions
+p_fpdm = hist_fpdm / np.sum(hist_fpdm)
+p_dm = hist_dm / np.sum(hist_dm)
+
+# Compute KL divergence
+kl_div = np.sum(rel_entr(p_fpdm, p_dm))  # KL(P || Q)
+print(f"KL Divergence (FPDM vs. DM): {kl_div:.4f}")
+```
+**Interpretation:**  
+- **High KL divergence** → FPDM and DM capture very different probability distributions.  
+- **Low KL divergence** → The two embeddings behave similarly in how they represent differentiation states.  
+
+---
+
+### **3. Correlation Between FPDM and DM Components**  
+We check the **Spearman** and **Pearson** correlation coefficients between the first few components of FPDM and DM:  
+
+```python
+from scipy.stats import spearmanr, pearsonr
+
+# Compute correlations for first principal component
+spearman_corr, _ = spearmanr(fpdm_comp1, dm_comp1)
+pearson_corr, _ = pearsonr(fpdm_comp1, dm_comp1)
+
+print(f"Spearman Correlation (FPDM vs. DM): {spearman_corr:.4f}")
+print(f"Pearson Correlation (FPDM vs. DM): {pearson_corr:.4f}")
+```
+**Interpretation:**  
+- **Spearman correlation** measures monotonic relationships (useful for ranking differentiation states).  
+- **Pearson correlation** measures linear relationships (useful if FPDM and DM capture similar global trends).  
+
+---
+
+### **4. Visualization of FPDM vs. DM Distributions**
+We can overlay the two probability distributions to see how FPDM and DM differ:
+
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(7,5))
+sns.kdeplot(fpdm_comp1, fill=True, label="FPDM", alpha=0.5)
+sns.kdeplot(dm_comp1, fill=True, label="Diffusion Map", alpha=0.5)
+plt.xlabel("Component 1 Value")
+plt.ylabel("Density")
+plt.title("FPDM vs. Diffusion Map Distributions")
+plt.legend()
+plt.show()
+```
+
+---
+
+### **Final Interpretation**
+1. **If Wasserstein Distance is High** → FPDM and DM embeddings capture different differentiation patterns.  
+2. **If KL Divergence is High** → FPDM models probability flux differently from DM.  
+3. **If Spearman Correlation is Low** → FPDM and DM rank differentiation states differently.  
+4. **Visualization** → If FPDM and DM have distinct distributions, FPDM might capture finer differentiation dynamics.  
+
+Would you like to **compare FPDM to PCA or UMAP as well**? 🚀
